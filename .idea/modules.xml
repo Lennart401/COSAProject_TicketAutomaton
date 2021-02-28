@@ -6,7 +6,9 @@
       <module fileurl="file://$PROJECT_DIR$/ComponentServiceBus/ComponentServiceBus.iml" filepath="$PROJECT_DIR$/ComponentServiceBus/ComponentServiceBus.iml" />
       <module fileurl="file://$PROJECT_DIR$/DocumentSystem_Automaton/DocumentSystem_Automaton.iml" filepath="$PROJECT_DIR$/DocumentSystem_Automaton/DocumentSystem_Automaton.iml" />
       <module fileurl="file://$PROJECT_DIR$/MessagingSystem_Automaton/MessagingSystem_Automaton.iml" filepath="$PROJECT_DIR$/MessagingSystem_Automaton/MessagingSystem_Automaton.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PaymentSystem/PaymentSystem.iml" filepath="$PROJECT_DIR$/PaymentSystem/PaymentSystem.iml" />
       <module fileurl="file://$PROJECT_DIR$/PrintingSystem_Automaton/PrintingSystem_Automaton.iml" filepath="$PROJECT_DIR$/PrintingSystem_Automaton/PrintingSystem_Automaton.iml" />
+      <module fileurl="file://$PROJECT_DIR$/RoutingSystem/RoutingSystem.iml" filepath="$PROJECT_DIR$/RoutingSystem/RoutingSystem.iml" />
       <module fileurl="file://$PROJECT_DIR$/TicketAutomaton/TicketAutomaton.iml" filepath="$PROJECT_DIR$/TicketAutomaton/TicketAutomaton.iml" />
     </modules>
   </component>

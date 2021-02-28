@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="Osmorc" name="OSGi">
+      <configuration manifestGenerationMode="OsmorcControlled" manifestLocation="" jarfileLocation="TicketAutomaton.jar" outputPathType="CompilerOutputPath" bndFileLocation="" bundlorFileLocation="" bundleActivator="de.leuphana.cosa.ticketautomaton.behaviour.TicketAutomaton" bundleSymbolicName="TicketAutomaton" bundleVersion="1.0.0" ignoreFilePattern="" useProjectDefaultManifestFileLocation="true" alwaysRebuildBundleJAR="false" doNotSynchronizeWithMaven="false">
+        <additionalProperties>
+          <property key="Export-Package" value="de.leuphana.cosa.routingsystem.behaviour.service" />
+        </additionalProperties>
+        <additionalJARContents />
+      </configuration>
+    </facet>
+  </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
@@ -32,5 +42,8 @@
       </library>
     </orderEntry>
     <orderEntry type="module" module-name="ComponentServiceBus" />
+    <orderEntry type="library" scope="PROVIDED" name="org.osgi.core-7.0.0" level="project" />
+    <orderEntry type="module" module-name="RoutingSystem" exported="" />
+    <orderEntry type="module" module-name="PaymentSystem" />
   </component>
 </module>
