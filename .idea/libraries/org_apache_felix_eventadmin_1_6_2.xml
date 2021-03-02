@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="org.apache.felix.eventadmin-1.6.2">
+    <CLASSES>
+      <root url="jar://N:/Programme/ApacheFelix/org.apache.felix.eventadmin-1.6.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

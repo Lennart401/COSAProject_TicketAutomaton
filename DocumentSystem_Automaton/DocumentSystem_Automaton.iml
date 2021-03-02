@@ -39,5 +39,7 @@
       </library>
     </orderEntry>
     <orderEntry type="library" scope="PROVIDED" name="org.osgi.core-7.0.0" level="project" />
+    <orderEntry type="library" name="felix" level="project" />
+    <orderEntry type="library" name="org.apache.felix.eventadmin-1.6.2" level="project" />
   </component>
 </module>
