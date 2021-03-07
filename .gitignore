@@ -1,3 +1,8 @@
+/.idea/
+*.iml
+/out/
+/lib/
+
 /Component/bin/
 /Component/.settings/
 /Component/.classpath
@@ -9,21 +14,25 @@
 /ComponentServiceBus/.project
 
 /DocumentSystem_Automaton/bin/
+/DocumentSystem_Automaton/logs/
 /DocumentSystem_Automaton/.settings/
 /DocumentSystem_Automaton/.classpath
 /DocumentSystem_Automaton/.project
 
 /MessagingSystem_Automaton/bin/
+/MessagingSystem_Automaton/logs/
 /MessagingSystem_Automaton/.settings/
 /MessagingSystem_Automaton/.classpath
 /MessagingSystem_Automaton/.project
 
 /PrintingSystem_Automaton/bin/
+/PrintingSystem_Automaton/logs/
 /PrintingSystem_Automaton/.settings/
 /PrintingSystem_Automaton/.classpath
 /PrintingSystem_Automaton/.project
 
 /TicketAutomaton/bin/
+/TicketAutomaton/logs/
 /TicketAutomaton/.settings/
 /TicketAutomaton/.classpath
 /TicketAutomaton/.project
