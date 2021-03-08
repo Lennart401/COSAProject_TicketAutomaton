@@ -9,12 +9,7 @@ import de.leuphana.swa.documentsystem.structure.ticketing.TicketDocumentTemplate
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.leuphana.cosa.component.Component;
 import de.leuphana.swa.documentsystem.behaviour.service.DocumentCommandService;
-import de.leuphana.swa.documentsystem.behaviour.service.Manageable;
-import de.leuphana.swa.documentsystem.behaviour.service.event.ManageableEvent;
-import de.leuphana.swa.documentsystem.behaviour.service.event.ManageableEventListener;
-import de.leuphana.swa.documentsystem.behaviour.service.event.ManageableEventService;
 import de.leuphana.swa.documentsystem.structure.Document;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -24,22 +19,17 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
-public class DocumentSystemImpl implements DocumentCommandService, ManageableEventService, Component, BundleActivator {
+public class DocumentSystemImpl implements DocumentCommandService, BundleActivator {
 	// Java Collection classes
 	// Interface (Was? - 1): List, Set, Map, Queue
 	// Realisierung: (Wie? - N): ArrayList, LinkedList / HashMap, TreeMap
 	private Map<Integer, Document> documents;
 
-	// TODO remove
-	private Set<ManageableEventListener> manageableEventListeners;
-
 	private Logger logger;
 	private EventAdmin eventAdmin;
+	private ServiceReference eventAdminRef;
 
 	public DocumentSystemImpl() {
-		// TODO remove
-		manageableEventListeners = new HashSet<ManageableEventListener>();
-
 		// Was? / Interface = Wie? / Realisierung
 		documents = new HashMap<Integer, Document>();
 		logger = LogManager.getLogger(this.getClass());
@@ -56,12 +46,12 @@ public class DocumentSystemImpl implements DocumentCommandService, ManageableEve
 
 		Dictionary<String, Object> eventHandlerProps = new Hashtable<>();
 		eventHandlerProps.put(EventConstants.EVENT_TOPIC, topics);
-		context.registerService(EventHandler.class.getName(), new DocumentEventHandler(this, context), eventHandlerProps);
+		context.registerService(EventHandler.class.getName(), new DocumentEventHandler(this), eventHandlerProps);
 
 		// get EventAdmin
-		ServiceReference ref = context.getServiceReference(EventAdmin.class.getName());
-		if (ref != null) {
-			eventAdmin = (EventAdmin) context.getService(ref);
+		eventAdminRef = context.getServiceReference(EventAdmin.class.getName());
+		if (eventAdminRef != null) {
+			eventAdmin = (EventAdmin) context.getService(eventAdminRef);
 		} else {
 			System.err.println("DocumentSystem: no EventAdmin-Service found!");
 		}
@@ -69,6 +59,7 @@ public class DocumentSystemImpl implements DocumentCommandService, ManageableEve
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
+		context.ungetService(eventAdminRef);
 	}
 
 	@Override
@@ -82,32 +73,11 @@ public class DocumentSystemImpl implements DocumentCommandService, ManageableEve
 
 	@Override
 	public Document createDocument(String title) {
-		Manageable manageable = new Manageable() {
-
-			@Override
-			public String getTitle() {
-				return title;
-			}
-
-			@Override
-			public String getContent() {
-				return "";
-			}
-			
-		};
-		
 		Document document = new Document(title);
-		
+
 		logger.info("Document : " + title + " created!");
 
-		// TODO remove
-		// TODO Refactor into seperate method
-		ManageableEvent manageableEvent = new ManageableEvent(manageable);
-		
-		for (ManageableEventListener manageableEventListener : manageableEventListeners) {
-			manageableEventListener.onManageableCreated(manageableEvent);
-		}
-		
+		sendDocumentCreatedEvent(document);
 		return document;
 	}
 
@@ -138,47 +108,4 @@ public class DocumentSystemImpl implements DocumentCommandService, ManageableEve
 			System.err.println("DocumentSystem: Cannot send event due to missing EventAdmin service!");
 		}
 	}
-
-	// TODO remove
-	@Override
-	public void addManageableEventListener(ManageableEventListener manageableEventListener) {
-		manageableEventListeners.add(manageableEventListener);
-	}
-
-	// TODO remove
-	@Override
-	public void removeManageableEventListener(ManageableEventListener manageableEventListener) {
-		manageableEventListeners.remove(manageableEventListener);
-	}
-
-	// TODO remove
-	@Override
-	public String getCommandServiceName() {
-		return DocumentCommandService.class.getName();
-	}
-
-	// TODO remove
-	@Override
-	public String getEventServiceName() {
-		return ManageableEventService.class.getName();
-	}
-
-	// TODO remove
-	@Override
-	public String getCommandServicePath() {
-		return DocumentCommandService.class.getPackageName();
-	}
-
-	// TODO remove
-	@Override
-	public String getEventServicePath() {
-		return ManageableEventService.class.getPackageName();
-	}
-
-	// TODO remove
-	@Override
-	public String getComponentName() {
-		return "DocumentSystem";
-	}
-
 }

@@ -4,6 +4,8 @@ import de.leuphana.cosa.pricingsystem.behaviour.service.PricingCommandService;
 import de.leuphana.cosa.pricingsystem.structure.PriceGroup;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
@@ -15,6 +17,8 @@ import java.util.Map;
  * @author Lennart_Admin
  */
 public class PricingSystemImpl implements PricingCommandService, BundleActivator {
+
+	private ServiceReference eventAdminRef;
 
 	@Override
 	public Map<PriceGroup, Double> getPrices(Double routeLength) {
@@ -31,6 +35,14 @@ public class PricingSystemImpl implements PricingCommandService, BundleActivator
 	public void start(BundleContext context) throws Exception {
 		System.out.println("Starting PricingSystem");
 
+		EventAdmin eventAdmin = null;
+		eventAdminRef = context.getServiceReference(EventAdmin.class.getName());
+		if (eventAdminRef != null) {
+			eventAdmin = (EventAdmin) context.getService(eventAdminRef);
+		} else {
+			System.err.println("PricingSystem: no EventAdmin-Service found!");
+		}
+
 		// Register event handler
 		String[] topics = new String[] {
 				"de/leuphana/cosa/pricing/GET_PRICES",
@@ -39,11 +51,11 @@ public class PricingSystemImpl implements PricingCommandService, BundleActivator
 
 		Dictionary<String, Object> eventHandlerProps = new Hashtable<>();
 		eventHandlerProps.put(EventConstants.EVENT_TOPIC, topics);
-		context.registerService(EventHandler.class.getName(), new PricingEventHandler(this, context), eventHandlerProps);
+		context.registerService(EventHandler.class.getName(), new PricingEventHandler(this, eventAdmin), eventHandlerProps);
 	}
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
-
+		context.ungetService(eventAdminRef);
 	}
 }

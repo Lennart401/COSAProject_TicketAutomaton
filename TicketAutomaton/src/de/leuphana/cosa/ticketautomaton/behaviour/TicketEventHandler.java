@@ -16,17 +16,9 @@ public class TicketEventHandler implements EventHandler {
 	private EventAdmin eventAdmin;
 	private CLI cli;
 
-	public TicketEventHandler(BundleContext context) {
-		cli = CLI.getInstance();
-
-		ServiceReference ref = context.getServiceReference(EventAdmin.class.getName());
-		if (ref != null) {
-			eventAdmin = (EventAdmin) context.getService(ref);
-		} else {
-			// TODO add logger
-			cli.error("TicketEventHandler: No EventAdmin-Service found!");
-		}
-		// TODO unget service ref???
+	public TicketEventHandler(BundleContext context, EventAdmin eventAdmin) {
+		this.cli = CLI.getInstance();
+		this.eventAdmin = eventAdmin;
 	}
 
 	@Override

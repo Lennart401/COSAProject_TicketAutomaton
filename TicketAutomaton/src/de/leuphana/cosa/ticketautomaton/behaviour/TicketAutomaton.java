@@ -19,37 +19,18 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 public class TicketAutomaton implements BundleActivator {
-	// Components
-//	private PrintingCommandService printingSystem;
-//	private DocumentCommandService documentSystem;
-//	private MessagingCommandService messagingSystem;
-//	private RoutingCommandService routingService;
-	
-	// Connector 
-//	private ComponentServiceBus componentServiceBus;
-	
-	public TicketAutomaton() {
-		// Create topology (star)
-//		documentSystem = new DocumentSystemImpl();
-//		printingSystem = new PrintingSystemImpl();
-//		messagingSystem = new MessagingSystemImpl();
-//
-//		componentServiceBus = new ComponentServiceBus();
-//
-//		componentServiceBus.registerComponent((Component) documentSystem);
-//		componentServiceBus.registerComponent((Component) printingSystem);
-//		componentServiceBus.registerComponent((Component) messagingSystem);
-//
-//		componentServiceBus.configureComponentConnections();
-	}
-	
-//	public boolean sellTicket(String start, String end) {
-//		return componentServiceBus.sellTicket(start, end);
-//	}
+
+	private EventAdmin eventAdmin;
+	private ServiceReference eventAdminRef;
 
 	@Override
 	public void start(BundleContext context) throws Exception {
 		System.out.println("Starting TicketAutomaton");
+
+		eventAdminRef = context.getServiceReference(EventAdmin.class.getName());
+		if (eventAdminRef != null) {
+			eventAdmin = (EventAdmin) context.getService(eventAdminRef);
+		}
 
 		// Register event handler
 		String[] topics = new String[] {
@@ -60,12 +41,10 @@ public class TicketAutomaton implements BundleActivator {
 
 		Dictionary<String, Object> eventHandlerProps = new Hashtable<>();
 		eventHandlerProps.put(EventConstants.EVENT_TOPIC, topics);
-		context.registerService(EventHandler.class.getName(), new TicketEventHandler(context), eventHandlerProps);
+		context.registerService(EventHandler.class.getName(), new TicketEventHandler(context, eventAdmin), eventHandlerProps);
 
 		// Run ticketautomaton logic
-		ServiceReference ref = context.getServiceReference(EventAdmin.class.getName());
-		if (ref != null) {
-			EventAdmin eventAdmin = (EventAdmin) context.getService(ref);
+		if (eventAdmin != null) {
 			CLI cli = CLI.getInstance();
 
 //			if (true) {
@@ -111,18 +90,6 @@ public class TicketAutomaton implements BundleActivator {
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
-//		context.removeServiceListener(this);
-		// TODO unget service ref???
+		context.ungetService(eventAdminRef);
 	}
-
-//	@Override
-//	public void serviceChanged(ServiceEvent event) {
-//		String[] objectClass = (String[]) event.getServiceReference().getProperty("objectClass");
-//
-//		switch (event.getType()) {
-//			case ServiceEvent.REGISTERED -> System.out.println("Service of type " + objectClass[0] + " registered");
-//			case ServiceEvent.UNREGISTERING -> System.out.println("Service of type " + objectClass[0] + " is unregistering");
-//			case ServiceEvent.MODIFIED -> System.out.println("Service of type " + objectClass[0] + " modified");
-//		}
-//	}
 }

@@ -1,25 +1,24 @@
 package de.leuphana.swa.printingsystem.behaviour;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import de.leuphana.cosa.component.Component;
 import de.leuphana.swa.printingsystem.behaviour.service.PrintConfiguration;
 import de.leuphana.swa.printingsystem.behaviour.service.PrintReport;
 import de.leuphana.swa.printingsystem.behaviour.service.Printable;
 import de.leuphana.swa.printingsystem.behaviour.service.PrintingCommandService;
-import de.leuphana.swa.printingsystem.behaviour.service.event.PrintableEvent;
-import de.leuphana.swa.printingsystem.behaviour.service.event.PrintableEventListener;
-import de.leuphana.swa.printingsystem.behaviour.service.event.PrintableEventService;
 import de.leuphana.swa.printingsystem.structure.PrintFormat;
 import de.leuphana.swa.printingsystem.structure.PrintJob;
 import de.leuphana.swa.printingsystem.structure.PrintJobQueue;
 import de.leuphana.swa.printingsystem.structure.Printer;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 
-public class PrintingSystemImpl implements PrintingCommandService, PrintableEventService, Component {
+public class PrintingSystemImpl implements PrintingCommandService, BundleActivator {
 	// Interfaces
 	// Collection (Sammlung von Objekten)(Was?) ==> Set[keine doppelten Objekte],
 	// List[kann auch doppelten Objekte enthalten], Map[organisiert nach
@@ -29,11 +28,11 @@ public class PrintingSystemImpl implements PrintingCommandService, PrintableEven
 	// Was? / Interface
 //	private Map<DocumentFormat, Printer> printers;
 	private PrintJobQueue printJobQueue;
-	private Set<PrintableEventListener> printableEventListeners;
+
+	private EventAdmin eventAdmin;
+	private ServiceReference eventAdminRef;
 
 	public PrintingSystemImpl() {
-		printableEventListeners = new HashSet<PrintableEventListener>();
-
 		// Wie? / konkrete Klasse
 //		printers = new HashMap<DocumentFormat, Printer>();
 //		printers.put();
@@ -42,6 +41,22 @@ public class PrintingSystemImpl implements PrintingCommandService, PrintableEven
 		printJobQueue = PrintJobQueue.getInstance();
 		printJobQueue.addPrinter(new Printer(PrintFormat.A4));
 		printJobQueue.addPrinter(new Printer(PrintFormat.A3));
+	}
+
+	@Override
+	public void start(BundleContext context) throws Exception {
+		// get EventAdmin
+		eventAdminRef = context.getServiceReference(EventAdmin.class.getName());
+		if (eventAdminRef != null) {
+			eventAdmin = (EventAdmin) context.getService(eventAdminRef);
+		} else {
+			System.err.println("PrintingSystem: no EventAdmin-Service found!");
+		}
+	}
+
+	@Override
+	public void stop(BundleContext context) throws Exception {
+		context.ungetService(eventAdminRef);
 	}
 
 	@Override
@@ -56,66 +71,26 @@ public class PrintingSystemImpl implements PrintingCommandService, PrintableEven
 		printReport.setConfirmationText(printable.getContent());
 		printReport.setPrintDate(LocalDate.now());
 		printReport.setPrintSuccessful(true);
-		
-		// TODO Refactor into seperate method
-		PrintableEvent printableEvent = new PrintableEvent(printReport);
 
-		for (PrintableEventListener printableEventListener : printableEventListeners) {
-			printableEventListener.onPrintableExcuted(printableEvent);
-		}
-
+		sendPrintableEvent(printReport);
 		return printReport;
+	}
+
+	private void sendPrintableEvent(PrintReport report) {
+		Dictionary<String, Object> props = new Hashtable<>();
+		props.put("isPrintSuccessful", report.isPrintSuccessful());
+		props.put("printDate", report.getPrintDate());
+		props.put("confirmationText", report.getConfirmationText());
+		props.put("price", report.getPrice());
+
+		Event event = new Event("de/leuphana/cosa/printing/PRINT_REPORT", props);
+		eventAdmin.sendEvent(event);
 	}
 
 	@Override
 	public Set<String> getSupportedPrintFormats() {
-		// transformation
-//		Set<String> supportedPrintFormatAsString = new HashSet<String>();
-//		
-//		for (PrintFormat printFormat : PrintFormat.values()) {
-//			supportedPrintFormatAsString.add(printFormat.toString());
-//		}
-
-//		return supportedPrintFormatAsString;
-
 		// Pipe&Filter
 		// transformation
 		return Arrays.stream(PrintFormat.values()).map(Enum::name).collect(Collectors.toSet());
 	}
-
-	@Override
-	public String getCommandServiceName() {
-		return PrintingCommandService.class.getName();
-	}
-
-	@Override
-	public String getEventServiceName() {
-		return PrintableEventService.class.getName();
-	}
-
-	@Override
-	public String getCommandServicePath() {
-		return PrintingCommandService.class.getPackageName();
-	}
-
-	@Override
-	public String getEventServicePath() {
-		return PrintableEventService.class.getPackageName();
-	}
-
-	@Override
-	public String getComponentName() {
-		return "PrintingSystem";
-	}
-
-	@Override
-	public void addPrintableEventListener(PrintableEventListener printableEventListener) {
-		printableEventListeners.add(printableEventListener);
-	}
-
-	@Override
-	public void removePrintableEventListener(PrintableEventListener printableEventListener) {
-		printableEventListeners.remove(printableEventListener);
-	}
-
 }

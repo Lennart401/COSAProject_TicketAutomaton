@@ -21,15 +21,9 @@ public class PricingEventHandler implements EventHandler {
 	private PricingCommandService service;
 	private EventAdmin eventAdmin;
 
-	public PricingEventHandler(PricingCommandService service, BundleContext context) {
+	public PricingEventHandler(PricingCommandService service, EventAdmin eventAdmin) {
 		this.service = service;
-
-		ServiceReference ref = context.getServiceReference(EventAdmin.class.getName());
-		if (ref != null) {
-			eventAdmin = (EventAdmin) context.getService(ref);
-		} else {
-			System.err.println("PricingSystem: no EventAdmin-Service found!");
-		}
+		this.eventAdmin = eventAdmin;
 	}
 
 	@Override

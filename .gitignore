@@ -3,16 +3,6 @@
 /out/
 /lib/
 
-/Component/bin/
-/Component/.settings/
-/Component/.classpath
-/Component/.project
-
-/ComponentServiceBus/bin/
-/ComponentServiceBus/.settings/
-/ComponentServiceBus/.classpath
-/ComponentServiceBus/.project
-
 /DocumentSystem_Automaton/bin/
 /DocumentSystem_Automaton/logs/
 /DocumentSystem_Automaton/.settings/

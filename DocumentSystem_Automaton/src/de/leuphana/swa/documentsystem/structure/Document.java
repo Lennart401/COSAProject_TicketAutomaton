@@ -4,7 +4,6 @@ public class Document  {
 	private static Integer lastId = 0;
 	
 	private Integer id;
-	// TODO delete because of name parameter
 	private String title;
 	private String text;
 	private DocumentFormat documentFormat;

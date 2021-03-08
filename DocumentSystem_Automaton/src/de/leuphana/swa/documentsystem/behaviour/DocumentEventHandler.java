@@ -2,10 +2,7 @@ package de.leuphana.swa.documentsystem.behaviour;
 
 import de.leuphana.swa.documentsystem.behaviour.service.DocumentCommandService;
 import de.leuphana.swa.documentsystem.structure.ticketing.TicketDocumentTemplate;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
 
 /**
@@ -14,18 +11,9 @@ import org.osgi.service.event.EventHandler;
 public class DocumentEventHandler implements EventHandler {
 
 	private DocumentCommandService service;
-	// do we even need this?
-	private EventAdmin eventAdmin;
 
-	public DocumentEventHandler(DocumentCommandService service, BundleContext context) {
+	public DocumentEventHandler(DocumentCommandService service) {
 		this.service = service;
-
-		ServiceReference ref = context.getServiceReference(EventAdmin.class.getName());
-		if (ref != null) {
-			eventAdmin = (EventAdmin) context.getService(ref);
-		} else {
-			System.err.println("DocumentSystem: no EventAdmin-Service found!");
-		}
 	}
 
 	@Override
