@@ -13,53 +13,85 @@ import java.util.*;
  */
 public class TicketEventHandler implements EventHandler {
 
-	private Scanner scanner;
 	private EventAdmin eventAdmin;
+	private CLI cli;
 
-	// TODO create scanner in TicketEventHandler
-	public TicketEventHandler(Scanner scanner, BundleContext context) {
-		this.scanner = scanner;
+	public TicketEventHandler(BundleContext context) {
+		cli = CLI.getInstance();
 
 		ServiceReference ref = context.getServiceReference(EventAdmin.class.getName());
 		if (ref != null) {
 			eventAdmin = (EventAdmin) context.getService(ref);
 		} else {
-			System.out.println("no eventadmin found!");
+			// TODO add logger
+			cli.error("TicketEventHandler: No EventAdmin-Service found!");
 		}
+		// TODO unget service ref???
 	}
 
 	@Override
 	public void handleEvent(Event event) {
-		switch (event.getTopic()) {
-			case "de/leuphana/cosa/routing/RESPONSE_STARTPOINTS" -> {
-				Set<String> startpoints = (Set<String>) event.getProperty("startpoints");
-				List<String> sps = List.copyOf(startpoints);
+		if (eventAdmin != null) {
+			System.out.println("TicketEventHandler: " + event.getTopic());
+			switch (event.getTopic()) {
+				case "de/leuphana/cosa/routing/RESPONSE_STARTPOINTS" -> {
+					Set<String> startpoints = (Set<String>) event.getProperty("startpoints");
 
-				for (int i = 0; i < sps.size(); i++) {
-					System.out.println(i + " " + sps.get(i));
+					// select startpoint (CLI)
+					String selectedStartpoint = cli.displayAndSelect(startpoints, "Please select a start point (type index): ");
+
+					// send event for destinations
+					cli.info("\nLoading available destinations...");
+					Dictionary<String, Object> props = new Hashtable<>();
+					props.put("startpoint", selectedStartpoint);
+					Event eventGetDestinations = new Event("de/leuphana/cosa/routing/GET_DESTINATIONS", props);
+					eventAdmin.sendEvent(eventGetDestinations);
 				}
 
-				System.out.print("Please select a startpoint (type number 0 - " + (sps.size() - 1) + "): ");
-				int startpointIndex = scanner.nextInt();
-				System.out.println("Selected: " + sps.get(startpointIndex));
+				case "de/leuphana/cosa/routing/RESPONSE_DESTINATIONS" -> {
+					String startpoint = (String) event.getProperty("startpoint");
+					Set<String> destinations = (Set<String>) event.getProperty("destinations");
 
-				System.out.println("\nLoading available destinations...");
-				Dictionary<String, Object> eventGetDestinationsDictionaryWithGenericTypesOfStringAndObjectAsHashtableVariable = new Hashtable<>();
-				eventGetDestinationsDictionaryWithGenericTypesOfStringAndObjectAsHashtableVariable.put("start", sps.get(startpointIndex));
-				Event getDestinationsEventOrDeLeuphanaCosaRoutingGET_DESTINATIONSEvent = new Event("de/leuphana/cosa/routing/GET_DESTINATIONS",
-						eventGetDestinationsDictionaryWithGenericTypesOfStringAndObjectAsHashtableVariable);
-				eventAdmin.sendEvent(getDestinationsEventOrDeLeuphanaCosaRoutingGET_DESTINATIONSEvent);
+					// select destination (CLI)
+					String selectedDestination = cli.displayAndSelect(destinations, "Please select a destination (type index): ");
 
-//				Dictionary d = new Hashtable();
-//				d.put("s", sps.get(startpointIndex));
-//				Event e = new Event("gd", d);
-//				eventAdmin.sendEvent(e);
-			}
+					// send event to show prices
+					cli.info("\nLoading possible tickets...");
+					Dictionary<String, Object> props = new Hashtable<>();
+					props.put("startpoint", startpoint);
+					props.put("destination", selectedDestination);
 
-			case "de/leuphana/cosa/routing/RESPONSE_DESTINATIONS" -> {
-				Set<String> destinations = (Set<String>) event.getProperty("destinations");
-				System.out.println(destinations);
+					Event eventGetPrices = new Event("de/leuphana/cosa/pricing/GET_PRICES", props);
+					eventAdmin.sendEvent(eventGetPrices);
+				}
+
+				case "de/leuphana/cosa/pricing/RESPONSE_PRICES" -> {
+					String startpoint = (String) event.getProperty("startpoint");
+					String destination = (String) event.getProperty("destination");
+					Double length = (Double) event.getProperty("length");
+					Map<String, Double> priceGroups = (Map<String, Double>) event.getProperty("pricegroups");
+
+					// fix needed to convert Map<String, Double> to Map<String, Object) for cli
+					Map<String, Object> generalizedMap = new HashMap<>();
+					priceGroups.forEach(generalizedMap::put);
+
+					// select pricegroup
+					String selectedGroup = cli.displayAndSelect(generalizedMap, "Please select a price group (type index): ");
+
+					// send a event to create a ticket
+					Dictionary<String, Object> props = new Hashtable<>();
+					props.put("startpoint", startpoint);
+					props.put("destination", destination);
+					props.put("length", length);
+					props.put("pricegroup", selectedGroup);
+					props.put("price", priceGroups.get(selectedGroup));
+					Event returnEvent = new Event("de/leuphana/cosa/document/CREATE_TICKET", props);
+					eventAdmin.sendEvent(returnEvent);
+				}
 			}
 		}
+
 	}
+
+
 }
