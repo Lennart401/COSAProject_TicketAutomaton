@@ -1,4 +1,4 @@
-package de.leuphana.cosa.routingsystem.behaviour.service.exceptions;
+package de.leuphana.cosa.routesystem.behaviour.service.exceptions;
 
 /**
  * @author Lennart_Admin

@@ -1,4 +1,4 @@
-package de.leuphana.cosa.routingsystem.structure;
+package de.leuphana.cosa.routesystem.structure;
 
 /**
  * @author Lennart_Admin

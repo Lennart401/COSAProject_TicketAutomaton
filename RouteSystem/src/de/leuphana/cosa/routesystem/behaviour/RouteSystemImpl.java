@@ -1,8 +1,8 @@
-package de.leuphana.cosa.routingsystem.behaviour;
+package de.leuphana.cosa.routesystem.behaviour;
 
-import de.leuphana.cosa.routingsystem.behaviour.service.RoutingCommandService;
-import de.leuphana.cosa.routingsystem.behaviour.service.exceptions.RouteDoesNotExistException;
-import de.leuphana.cosa.routingsystem.structure.Route;
+import de.leuphana.cosa.routesystem.behaviour.service.RouteCommandService;
+import de.leuphana.cosa.routesystem.behaviour.service.exceptions.RouteDoesNotExistException;
+import de.leuphana.cosa.routesystem.structure.Route;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventConstants;
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * @author Lennart_Admin
  */
-public class RoutingSystemImpl implements RoutingCommandService, BundleActivator {
+public class RouteSystemImpl implements RouteCommandService, BundleActivator {
 
 	private Set<Route> routes = Set.of(
 			new Route("Hamburg", "Harburg", 10),
@@ -33,16 +33,17 @@ public class RoutingSystemImpl implements RoutingCommandService, BundleActivator
 
 	@Override
 	public void start(BundleContext context) throws Exception {
-		System.out.println("Starting RoutingSystem");
+		System.out.println("Starting RouteSystem");
 
 		String[] topics = new String[] {
 				"de/leuphana/cosa/routing/GET_STARTPOINTS",
-				"de/leuphana/cosa/routing/GET_DESTINATIONS"
+				"de/leuphana/cosa/routing/GET_DESTINATIONS",
+				"de/leuphana/cosa/routing/GET_ROUTE_LENGTH"
 		};
 
 		Dictionary<String, Object> props = new Hashtable<>();
 		props.put(EventConstants.EVENT_TOPIC, topics);
-		context.registerService(EventHandler.class.getName(), new RoutingEventHandler(this, context), props);
+		context.registerService(EventHandler.class.getName(), new RouteEventHandler(this, context), props);
 
 		//Hashtable<String, String> props = new Hashtable<>();
 		//props.put("Something", "Foo");
@@ -80,12 +81,12 @@ public class RoutingSystemImpl implements RoutingCommandService, BundleActivator
 	}
 
 	@Override
-	public int getRouteLength(String start, String destination) throws RouteDoesNotExistException {
+	public Double getRouteLength(String start, String destination) throws RouteDoesNotExistException {
 		Route findRoute = routes.stream()
 				.filter(route -> (route.getStartpoint().equals(start) && route.getDestination().equals(destination))
 						|| (route.getStartpoint().equals(destination) && route.getDestination().equals(start)))
 				.findAny()
 				.orElseThrow(() -> new RouteDoesNotExistException(start, destination));
-		return findRoute.getDistance();
+		return findRoute.getDistance() * 1.45;
 	}
 }
