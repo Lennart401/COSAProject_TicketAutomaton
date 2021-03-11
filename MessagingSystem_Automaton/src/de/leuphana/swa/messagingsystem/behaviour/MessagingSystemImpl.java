@@ -55,6 +55,8 @@ public class MessagingSystemImpl implements MessagingCommandService, BundleActiv
 
 	@Override
 	public DeliveryReport sendMessage(Sendable sendable) {
+		if (logger == null) logger = LogManager.getLogger(this.getClass());
+
 		AbstractMessagingFactory abstractMessagingFactory = AbstractMessagingFactory.getFactory(sendable.getMessageType());
 
 		Message message = abstractMessagingFactory.createMessage(sendable.getReceiver(), sendable.getSender(), sendable.getContent());
