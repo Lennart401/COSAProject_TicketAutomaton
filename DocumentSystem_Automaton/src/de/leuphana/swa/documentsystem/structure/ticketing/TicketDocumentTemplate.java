@@ -9,7 +9,7 @@ import java.time.LocalDate;
  */
 public abstract class TicketDocumentTemplate extends Document {
 
-	private static int amountTickets = 1;
+	private static int amountTickets = 0;
 
 	private String startpoint;
 	private String destination;
@@ -18,7 +18,7 @@ public abstract class TicketDocumentTemplate extends Document {
 	private LocalDate date;
 
 	public TicketDocumentTemplate(String startpoint, String destination, Double length, Double price) {
-		super("Ticket #" + (amountTickets++));
+		super("Ticket #" + (++amountTickets));
 
 		this.startpoint = startpoint;
 		this.destination = destination;
