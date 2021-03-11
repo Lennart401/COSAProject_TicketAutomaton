@@ -1,6 +1,7 @@
 package de.leuphana.cosa.routesystem.behaviour;
 
 import de.leuphana.cosa.routesystem.behaviour.service.RouteCommandService;
+import de.leuphana.cosa.routesystem.behaviour.service.event.RouteEventHandler;
 import de.leuphana.cosa.routesystem.behaviour.service.exceptions.RouteDoesNotExistException;
 import de.leuphana.cosa.routesystem.structure.Route;
 import org.osgi.framework.BundleActivator;

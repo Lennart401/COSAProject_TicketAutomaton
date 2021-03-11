@@ -1,4 +1,4 @@
-package de.leuphana.cosa.routesystem.behaviour;
+package de.leuphana.cosa.routesystem.behaviour.service.event;
 
 import de.leuphana.cosa.routesystem.behaviour.service.RouteCommandService;
 import de.leuphana.cosa.routesystem.behaviour.service.exceptions.RouteDoesNotExistException;

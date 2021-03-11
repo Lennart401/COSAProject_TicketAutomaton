@@ -1,5 +1,6 @@
-package de.leuphana.cosa.ticketautomaton.behaviour;
+package de.leuphana.cosa.ticketautomaton.behaviour.service.event;
 
+import de.leuphana.cosa.ticketautomaton.behaviour.CLI;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.Event;
@@ -7,6 +8,7 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
 
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * @author Lennart_Admin
@@ -68,7 +70,10 @@ public class TicketEventHandler implements EventHandler {
 					priceGroups.forEach(generalizedMap::put);
 
 					// select pricegroup
-					String selectedGroup = cli.displayAndSelect(generalizedMap, "Please select a price group (type index): ");
+					String selectedGroup = cli.displayAndSelect(generalizedMap, "Please select a price group (type index): ", input -> {
+						Double price = (Double) input;
+						return price + " €"; // (Math.round(price * 100.0) / 100.0)
+					});
 
 					// send a event to create a ticket
 					Dictionary<String, Object> props = new Hashtable<>();

@@ -1,4 +1,4 @@
-package de.leuphana.swa.documentsystem.behaviour;
+package de.leuphana.swa.documentsystem.behaviour.service.event;
 
 import de.leuphana.swa.documentsystem.behaviour.service.DocumentCommandService;
 import de.leuphana.swa.documentsystem.structure.ticketing.TicketDocumentTemplate;
@@ -18,6 +18,8 @@ public class DocumentEventHandler implements EventHandler {
 
 	@Override
 	public void handleEvent(Event event) {
+		System.out.println("DocumentSystem: " + event.getTopic());
+
 		if (event.getTopic().equals("de/leuphana/cosa/document/CREATE_TICKET")) {
 			String startpoint = (String) event.getProperty("startpoint");
 			String destination = (String) event.getProperty("destination");

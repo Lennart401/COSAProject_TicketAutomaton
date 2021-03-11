@@ -22,4 +22,7 @@ public class PrintJob {
 		printJobState = printJobState.changePrintJobState(printJobAction);
 	}
 
+	public Printable getPrintable() {
+		return printable;
+	}
 }

@@ -2,6 +2,7 @@ package de.leuphana.swa.documentsystem.behaviour;
 
 import java.util.*;
 
+import de.leuphana.swa.documentsystem.behaviour.service.event.DocumentEventHandler;
 import de.leuphana.swa.documentsystem.structure.ticketing.BargainTicket;
 import de.leuphana.swa.documentsystem.structure.ticketing.CheaperTravelTicket;
 import de.leuphana.swa.documentsystem.structure.ticketing.NormalpriceTicket;
@@ -32,16 +33,17 @@ public class DocumentSystemImpl implements DocumentCommandService, BundleActivat
 	public DocumentSystemImpl() {
 		// Was? / Interface = Wie? / Realisierung
 		documents = new HashMap<Integer, Document>();
-		logger = LogManager.getLogger(this.getClass());
 	}
 
 	@Override
 	public void start(BundleContext context) throws Exception {
+		logger = LogManager.getLogger(this.getClass().getName());
 		System.out.println("Starting DocumentSystem");
+		logger.info("DocumentSystem - Test");
 
 		// Register event handler
 		String[] topics = new String[] {
-				"de/leuphana/cosa/pricing/CREATE_TICKET"
+				"de/leuphana/cosa/document/CREATE_TICKET"
 		};
 
 		Dictionary<String, Object> eventHandlerProps = new Hashtable<>();
@@ -92,11 +94,14 @@ public class DocumentSystemImpl implements DocumentCommandService, BundleActivat
 		};
 
 		sendDocumentCreatedEvent(ticket);
+		logger.info(ticket.getTitle() + " sold! Route: " + startpoint + " to " + destination + " (" + length + " km) " +
+				"PriceGroup: " + priceGroup + ", Price: " + price + " €");
 
 		return ticket;
 	}
 
 	private void sendDocumentCreatedEvent(Document document) {
+		System.out.println("sending document created event for document " + document.getTitle());
 		if (eventAdmin != null) {
 			Dictionary<String, Object> props = new Hashtable<>();
 			props.put("title", document.getTitle());

@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * @author Lennart_Admin
@@ -47,12 +49,12 @@ public class CLI {
 		return sps.get(startpointIndex - 1);
 	}
 
-	public String displayAndSelect(Map<String, Object> keyValuePairs, String prompt) {
+	public String displayAndSelect(Map<String, Object> keyValuePairs, String prompt, Function<Object, String> printFormatter) {
 		List<String> keys = List.copyOf(keyValuePairs.keySet());
 
 		for (int i = 0; i < keys.size(); i++) {
 			String key = keys.get(i);
-			System.out.println((i + 1) + " " + key + " - " + keyValuePairs.get(key));
+			System.out.println((i + 1) + " " + key + " - " + printFormatter.apply(keyValuePairs.get(key)));
 		}
 
 		prompt(prompt);

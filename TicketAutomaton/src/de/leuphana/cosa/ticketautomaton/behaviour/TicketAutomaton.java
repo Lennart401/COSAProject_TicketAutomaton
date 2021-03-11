@@ -8,6 +8,7 @@ package de.leuphana.cosa.ticketautomaton.behaviour;
 //import de.leuphana.swa.messagingsystem.behaviour.service.MessagingCommandService;
 //import de.leuphana.swa.printingsystem.behaviour.PrintingSystemImpl;
 //import de.leuphana.swa.printingsystem.behaviour.service.PrintingCommandService;
+import de.leuphana.cosa.ticketautomaton.behaviour.service.event.TicketEventHandler;
 import org.osgi.framework.*;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
@@ -68,7 +69,7 @@ public class TicketAutomaton implements BundleActivator {
 //				eventAdmin.sendEvent(getDestinationEvent);
 //			}
 		} else {
-			System.out.println("no service found");
+			System.err.println("TicketAutomaton: no EventAdmin service could be found!");
 		}
 //		context.addServiceListener(this);
 //

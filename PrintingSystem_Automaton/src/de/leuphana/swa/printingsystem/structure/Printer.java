@@ -15,6 +15,9 @@ public class Printer {
 		// Simulation of printing
 		printJob.changePrintJobState(PrintJobAction.PRINT);
 
+		// Print to console
+		System.out.println(printJob.getPrintable().getTitle() + "\n\n" + printJob.getPrintable().getContent());
+
 		return true;
 	}
 }

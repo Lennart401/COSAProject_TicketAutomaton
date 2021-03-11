@@ -8,6 +8,7 @@ import de.leuphana.swa.printingsystem.behaviour.service.PrintConfiguration;
 import de.leuphana.swa.printingsystem.behaviour.service.PrintReport;
 import de.leuphana.swa.printingsystem.behaviour.service.Printable;
 import de.leuphana.swa.printingsystem.behaviour.service.PrintingCommandService;
+import de.leuphana.swa.printingsystem.behaviour.service.event.PrintingEventHandler;
 import de.leuphana.swa.printingsystem.structure.PrintFormat;
 import de.leuphana.swa.printingsystem.structure.PrintJob;
 import de.leuphana.swa.printingsystem.structure.PrintJobQueue;
@@ -17,6 +18,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 
 public class PrintingSystemImpl implements PrintingCommandService, BundleActivator {
 	// Interfaces
@@ -45,6 +48,8 @@ public class PrintingSystemImpl implements PrintingCommandService, BundleActivat
 
 	@Override
 	public void start(BundleContext context) throws Exception {
+		System.out.println("Starting PrintingSystem");
+
 		// get EventAdmin
 		eventAdminRef = context.getServiceReference(EventAdmin.class.getName());
 		if (eventAdminRef != null) {
@@ -52,6 +57,14 @@ public class PrintingSystemImpl implements PrintingCommandService, BundleActivat
 		} else {
 			System.err.println("PrintingSystem: no EventAdmin-Service found!");
 		}
+
+		String[] topics = new String[] {
+				"de/leuphana/cosa/document/DOCUMENT_ADDED"
+		};
+
+		Dictionary<String, Object> eventHandlerProps = new Hashtable<>();
+		eventHandlerProps.put(EventConstants.EVENT_TOPIC, topics);
+		context.registerService(EventHandler.class.getName(), new PrintingEventHandler(this), eventHandlerProps);
 	}
 
 	@Override

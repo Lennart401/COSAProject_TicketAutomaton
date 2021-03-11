@@ -1,4 +1,4 @@
-package de.leuphana.cosa.pricingsystem.behaviour;
+package de.leuphana.cosa.pricingsystem.behaviour.service.event;
 
 import de.leuphana.cosa.pricingsystem.behaviour.service.PricingCommandService;
 import de.leuphana.cosa.pricingsystem.structure.PriceGroup;

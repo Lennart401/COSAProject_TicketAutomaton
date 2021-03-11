@@ -1,6 +1,7 @@
 package de.leuphana.cosa.pricingsystem.behaviour;
 
 import de.leuphana.cosa.pricingsystem.behaviour.service.PricingCommandService;
+import de.leuphana.cosa.pricingsystem.behaviour.service.event.PricingEventHandler;
 import de.leuphana.cosa.pricingsystem.structure.PriceGroup;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -25,9 +26,9 @@ public class PricingSystemImpl implements PricingCommandService, BundleActivator
 		double defaultCost = routeLength * 0.03;
 
 		return Map.of(
-				PriceGroup.NORMAL_TARIF, defaultCost,
-				PriceGroup.GUENSTIGERREISEN_TARIF, defaultCost * 0.75,
-				PriceGroup.SCHNAEPPCHEN_TARIF, defaultCost * 0.5
+				PriceGroup.NORMAL_TARIF, (Math.round(defaultCost * 100.0) / 100.0),
+				PriceGroup.GUENSTIGERREISEN_TARIF, (Math.round(defaultCost * 75.0) / 100.0),
+				PriceGroup.SCHNAEPPCHEN_TARIF, (Math.round(defaultCost * 50.0) / 100.0)
 		);
 	}
 
