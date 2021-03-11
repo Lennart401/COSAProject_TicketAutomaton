@@ -14,6 +14,7 @@ import de.leuphana.swa.printingsystem.behaviour.service.PrintingCommandService;
 class PrintingSystemTest {
 
 	private static PrintingCommandService printingSystem;
+
 	private static PrintConfiguration printConfiguration;
 	private static Printable printable;
 	
@@ -62,7 +63,7 @@ class PrintingSystemTest {
 	}
 
 	@Test
-	void canDocumentBePrinted() {
+	void canDocumentBePrinted() throws Exception {
 		Assertions.assertTrue(printingSystem.printDocument(printable, printConfiguration).isPrintSuccessful());
 	}
 
