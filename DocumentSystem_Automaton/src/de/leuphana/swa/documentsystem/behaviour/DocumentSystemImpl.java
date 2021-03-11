@@ -33,11 +33,11 @@ public class DocumentSystemImpl implements DocumentCommandService, BundleActivat
 	public DocumentSystemImpl() {
 		// Was? / Interface = Wie? / Realisierung
 		documents = new HashMap<Integer, Document>();
+		logger = LogManager.getLogger(this.getClass());
 	}
 
 	@Override
 	public void start(BundleContext context) throws Exception {
-		logger = LogManager.getLogger(this.getClass());
 		logger.info("Starting DocumentSystem");
 
 		// Register event handler
