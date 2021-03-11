@@ -2,6 +2,8 @@ package de.leuphana.swa.documentsystem.behaviour.service.event;
 
 import de.leuphana.swa.documentsystem.behaviour.service.DocumentCommandService;
 import de.leuphana.swa.documentsystem.structure.ticketing.TicketDocumentTemplate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
@@ -11,14 +13,16 @@ import org.osgi.service.event.EventHandler;
 public class DocumentEventHandler implements EventHandler {
 
 	private DocumentCommandService service;
+	private Logger logger;
 
 	public DocumentEventHandler(DocumentCommandService service) {
 		this.service = service;
+		this.logger = LogManager.getLogger(this.getClass());
 	}
 
 	@Override
 	public void handleEvent(Event event) {
-		System.out.println("DocumentSystem: " + event.getTopic());
+		logger.debug("Receiving event: " + event.getTopic());
 
 		if (event.getTopic().equals("de/leuphana/cosa/document/CREATE_TICKET")) {
 			String startpoint = (String) event.getProperty("startpoint");

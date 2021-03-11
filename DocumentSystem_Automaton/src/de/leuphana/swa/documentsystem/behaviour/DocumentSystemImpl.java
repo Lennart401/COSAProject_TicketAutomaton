@@ -37,9 +37,8 @@ public class DocumentSystemImpl implements DocumentCommandService, BundleActivat
 
 	@Override
 	public void start(BundleContext context) throws Exception {
-		logger = LogManager.getLogger(this.getClass().getName());
-		System.out.println("Starting DocumentSystem");
-		logger.info("DocumentSystem - Test");
+		logger = LogManager.getLogger(this.getClass());
+		logger.info("Starting DocumentSystem");
 
 		// Register event handler
 		String[] topics = new String[] {
@@ -55,7 +54,7 @@ public class DocumentSystemImpl implements DocumentCommandService, BundleActivat
 		if (eventAdminRef != null) {
 			eventAdmin = (EventAdmin) context.getService(eventAdminRef);
 		} else {
-			System.err.println("DocumentSystem: no EventAdmin-Service found!");
+			logger.fatal("no EventAdmin-Service found!");
 		}
 	}
 
@@ -101,7 +100,6 @@ public class DocumentSystemImpl implements DocumentCommandService, BundleActivat
 	}
 
 	private void sendDocumentCreatedEvent(Document document) {
-		System.out.println("sending document created event for document " + document.getTitle());
 		if (eventAdmin != null) {
 			Dictionary<String, Object> props = new Hashtable<>();
 			props.put("title", document.getTitle());
@@ -110,7 +108,7 @@ public class DocumentSystemImpl implements DocumentCommandService, BundleActivat
 			Event event = new Event("de/leuphana/cosa/document/DOCUMENT_ADDED", props);
 			eventAdmin.sendEvent(event);
 		} else {
-			System.err.println("DocumentSystem: Cannot send event due to missing EventAdmin service!");
+			logger.error("DocumentSystem: Cannot send event due to missing EventAdmin service!");
 		}
 	}
 }

@@ -9,6 +9,8 @@ package de.leuphana.cosa.ticketautomaton.behaviour;
 //import de.leuphana.swa.printingsystem.behaviour.PrintingSystemImpl;
 //import de.leuphana.swa.printingsystem.behaviour.service.PrintingCommandService;
 import de.leuphana.cosa.ticketautomaton.behaviour.service.event.TicketEventHandler;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.osgi.framework.*;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
@@ -18,15 +20,19 @@ import org.osgi.service.event.EventHandler;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Set;
 
 public class TicketAutomaton implements BundleActivator {
 
 	private EventAdmin eventAdmin;
 	private ServiceReference eventAdminRef;
 
+	private Logger logger;
+
 	@Override
 	public void start(BundleContext context) throws Exception {
-		System.out.println("Starting TicketAutomaton");
+		logger = LogManager.getLogger(this.getClass());
+		logger.info("Starting TicketAutomaton");
 
 		eventAdminRef = context.getServiceReference(EventAdmin.class.getName());
 		if (eventAdminRef != null) {
@@ -42,51 +48,28 @@ public class TicketAutomaton implements BundleActivator {
 
 		Dictionary<String, Object> eventHandlerProps = new Hashtable<>();
 		eventHandlerProps.put(EventConstants.EVENT_TOPIC, topics);
-		context.registerService(EventHandler.class.getName(), new TicketEventHandler(context, eventAdmin), eventHandlerProps);
+		context.registerService(EventHandler.class.getName(), new TicketEventHandler(eventAdmin), eventHandlerProps);
 
 		// Run ticketautomaton logic
 		if (eventAdmin != null) {
 			CLI cli = CLI.getInstance();
 
-//			if (true) {
-				// get list of startpoints
-
 			// start the CLI workflow, the rest of the CLI will be in TicketEventHandler
-			cli.info("\n\nFinding possible startpoints...");
-			Event getStartpointsEvent = new Event("de/leuphana/cosa/routing/GET_STARTPOINTS", Collections.emptyMap());
-			eventAdmin.sendEvent(getStartpointsEvent);
+			while (true) {
+				cli.info("\n\nFinding possible startpoints...");
+				Event getStartpointsEvent = new Event("de/leuphana/cosa/routing/GET_STARTPOINTS", Collections.emptyMap());
+				eventAdmin.sendEvent(getStartpointsEvent);
 
-//				// read startpoint via CLI
-//				System.out.print("Type startpoint: ");
-//				String startpoint = scanner.nextLine();
-//
-//				System.out.println("Finding possible destinations...");
-//
-//				//
-//				Dictionary<String, String> props = new Hashtable<>();
-//				props.put("start", startpoint);
-//				Event getDestinationEvent = new Event("de/leuphana/cosa/routingsystem/GET_DESTINATIONS", props);
-//				eventAdmin.sendEvent(getDestinationEvent);
-//			}
+				cli.prompt("What would you like to do next?\n");
+				String nextAction = cli.displayAndSelect(Set.of("Buy another ticket", "Exit"), "Select next action (type index): ");
+				if (nextAction.equals("Exit")) break;
+			}
+
+			logger.info("All CLI Code executed, the framework may be closed now.");
+
 		} else {
-			System.err.println("TicketAutomaton: no EventAdmin service could be found!");
+			logger.error("no EventAdmin service could be found!");
 		}
-//		context.addServiceListener(this);
-//
-//		ServiceReference[] refs = context.getServiceReferences(RoutingCommandService.class.getName(), "(Something=*)");
-//
-//		if (refs != null) {
-//			System.out.println("found services!");
-//			Scanner scanner = new Scanner(System.in);
-//
-//			while (true) {
-//				System.out.print("Type start point: ");
-//
-//
-//				routingService = (RoutingCommandService) context.getService(refs[0]);
-//				//System.out.println(routingService.getRoute(line[0], line[1]));
-//			}
-//		}
 	}
 
 	@Override

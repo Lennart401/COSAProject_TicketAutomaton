@@ -1,6 +1,8 @@
 package de.leuphana.cosa.ticketautomaton.behaviour.service.event;
 
 import de.leuphana.cosa.ticketautomaton.behaviour.CLI;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.Event;
@@ -18,77 +20,76 @@ public class TicketEventHandler implements EventHandler {
 	private EventAdmin eventAdmin;
 	private CLI cli;
 
-	public TicketEventHandler(BundleContext context, EventAdmin eventAdmin) {
+	private Logger logger;
+
+	public TicketEventHandler(EventAdmin eventAdmin) {
 		this.cli = CLI.getInstance();
 		this.eventAdmin = eventAdmin;
+		this.logger = LogManager.getLogger(this.getClass());
 	}
 
 	@Override
 	public void handleEvent(Event event) {
-		if (eventAdmin != null) {
-			System.out.println("TicketEventHandler: " + event.getTopic());
-			switch (event.getTopic()) {
-				case "de/leuphana/cosa/routing/RESPONSE_STARTPOINTS" -> {
-					Set<String> startpoints = (Set<String>) event.getProperty("startpoints");
+		logger.debug("Receiving event: " + event.getTopic());
 
-					// select startpoint (CLI)
-					String selectedStartpoint = cli.displayAndSelect(startpoints, "Please select a start point (type index): ");
+		switch (event.getTopic()) {
+			case "de/leuphana/cosa/routing/RESPONSE_STARTPOINTS" -> {
+				Set<String> startpoints = (Set<String>) event.getProperty("startpoints");
 
-					// send event for destinations
-					cli.info("\nLoading available destinations...");
-					Dictionary<String, Object> props = new Hashtable<>();
-					props.put("startpoint", selectedStartpoint);
-					Event eventGetDestinations = new Event("de/leuphana/cosa/routing/GET_DESTINATIONS", props);
-					eventAdmin.sendEvent(eventGetDestinations);
-				}
+				// select startpoint (CLI)
+				String selectedStartpoint = cli.displayAndSelect(startpoints, "Please select a start point (type index): ");
 
-				case "de/leuphana/cosa/routing/RESPONSE_DESTINATIONS" -> {
-					String startpoint = (String) event.getProperty("startpoint");
-					Set<String> destinations = (Set<String>) event.getProperty("destinations");
+				// send event for destinations
+				cli.info("\nLoading available destinations...");
+				Dictionary<String, Object> props = new Hashtable<>();
+				props.put("startpoint", selectedStartpoint);
+				Event eventGetDestinations = new Event("de/leuphana/cosa/routing/GET_DESTINATIONS", props);
+				eventAdmin.sendEvent(eventGetDestinations);
+			}
 
-					// select destination (CLI)
-					String selectedDestination = cli.displayAndSelect(destinations, "Please select a destination (type index): ");
+			case "de/leuphana/cosa/routing/RESPONSE_DESTINATIONS" -> {
+				String startpoint = (String) event.getProperty("startpoint");
+				Set<String> destinations = (Set<String>) event.getProperty("destinations");
 
-					// send event to show prices
-					cli.info("\nLoading possible tickets...");
-					Dictionary<String, Object> props = new Hashtable<>();
-					props.put("startpoint", startpoint);
-					props.put("destination", selectedDestination);
+				// select destination (CLI)
+				String selectedDestination = cli.displayAndSelect(destinations, "Please select a destination (type index): ");
 
-					Event eventGetPrices = new Event("de/leuphana/cosa/pricing/GET_PRICES", props);
-					eventAdmin.sendEvent(eventGetPrices);
-				}
+				// send event to show prices
+				cli.info("\nLoading possible tickets...");
+				Dictionary<String, Object> props = new Hashtable<>();
+				props.put("startpoint", startpoint);
+				props.put("destination", selectedDestination);
 
-				case "de/leuphana/cosa/pricing/RESPONSE_PRICES" -> {
-					String startpoint = (String) event.getProperty("startpoint");
-					String destination = (String) event.getProperty("destination");
-					Double length = (Double) event.getProperty("length");
-					Map<String, Double> priceGroups = (Map<String, Double>) event.getProperty("pricegroups");
+				Event eventGetPrices = new Event("de/leuphana/cosa/pricing/GET_PRICES", props);
+				eventAdmin.sendEvent(eventGetPrices);
+			}
 
-					// fix needed to convert Map<String, Double> to Map<String, Object) for cli
-					Map<String, Object> generalizedMap = new HashMap<>();
-					priceGroups.forEach(generalizedMap::put);
+			case "de/leuphana/cosa/pricing/RESPONSE_PRICES" -> {
+				String startpoint = (String) event.getProperty("startpoint");
+				String destination = (String) event.getProperty("destination");
+				Double length = (Double) event.getProperty("length");
+				Map<String, Double> priceGroups = (Map<String, Double>) event.getProperty("pricegroups");
 
-					// select pricegroup
-					String selectedGroup = cli.displayAndSelect(generalizedMap, "Please select a price group (type index): ", input -> {
-						Double price = (Double) input;
-						return price + " €"; // (Math.round(price * 100.0) / 100.0)
-					});
+				// fix needed to convert Map<String, Double> to Map<String, Object) for cli
+				Map<String, Object> generalizedMap = new HashMap<>();
+				priceGroups.forEach(generalizedMap::put);
 
-					// send a event to create a ticket
-					Dictionary<String, Object> props = new Hashtable<>();
-					props.put("startpoint", startpoint);
-					props.put("destination", destination);
-					props.put("length", length);
-					props.put("pricegroup", selectedGroup);
-					props.put("price", priceGroups.get(selectedGroup));
-					Event returnEvent = new Event("de/leuphana/cosa/document/CREATE_TICKET", props);
-					eventAdmin.sendEvent(returnEvent);
-				}
+				// select pricegroup
+				String selectedGroup = cli.displayAndSelect(generalizedMap, "Please select a price group (type index): ", input -> {
+					Double price = (Double) input;
+					return price + " €"; // (Math.round(price * 100.0) / 100.0)
+				});
+
+				// send a event to create a ticket
+				Dictionary<String, Object> props = new Hashtable<>();
+				props.put("startpoint", startpoint);
+				props.put("destination", destination);
+				props.put("length", length);
+				props.put("pricegroup", selectedGroup);
+				props.put("price", priceGroups.get(selectedGroup));
+				Event returnEvent = new Event("de/leuphana/cosa/document/CREATE_TICKET", props);
+				eventAdmin.sendEvent(returnEvent);
 			}
 		}
-
 	}
-
-
 }

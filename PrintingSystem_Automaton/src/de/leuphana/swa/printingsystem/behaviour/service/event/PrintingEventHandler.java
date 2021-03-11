@@ -3,6 +3,8 @@ package de.leuphana.swa.printingsystem.behaviour.service.event;
 import de.leuphana.swa.printingsystem.behaviour.service.PrintConfiguration;
 import de.leuphana.swa.printingsystem.behaviour.service.Printable;
 import de.leuphana.swa.printingsystem.behaviour.service.PrintingCommandService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
@@ -15,13 +17,16 @@ public class PrintingEventHandler implements EventHandler {
 
 	private PrintingCommandService service;
 
+	private Logger logger;
+
 	public PrintingEventHandler(PrintingCommandService service) {
 		this.service = service;
+		this.logger = LogManager.getLogger(this.getClass());
 	}
 
 	@Override
 	public void handleEvent(Event event) {
-		System.out.println("PrintingSystem: " + event.getTopic());
+		logger.debug("Receiving event: " + event.getTopic());
 
 		// Print document if it was added
 		if (event.getTopic().equals("de/leuphana/cosa/document/DOCUMENT_ADDED")) {

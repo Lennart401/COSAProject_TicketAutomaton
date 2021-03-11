@@ -13,6 +13,8 @@ import de.leuphana.swa.printingsystem.structure.PrintFormat;
 import de.leuphana.swa.printingsystem.structure.PrintJob;
 import de.leuphana.swa.printingsystem.structure.PrintJobQueue;
 import de.leuphana.swa.printingsystem.structure.Printer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -35,6 +37,8 @@ public class PrintingSystemImpl implements PrintingCommandService, BundleActivat
 	private EventAdmin eventAdmin;
 	private ServiceReference eventAdminRef;
 
+	private Logger logger;
+
 	public PrintingSystemImpl() {
 		// Wie? / konkrete Klasse
 //		printers = new HashMap<DocumentFormat, Printer>();
@@ -48,14 +52,15 @@ public class PrintingSystemImpl implements PrintingCommandService, BundleActivat
 
 	@Override
 	public void start(BundleContext context) throws Exception {
-		System.out.println("Starting PrintingSystem");
+		logger = LogManager.getLogger(this.getClass());
+		logger.info("Starting PrintingSystem");
 
 		// get EventAdmin
 		eventAdminRef = context.getServiceReference(EventAdmin.class.getName());
 		if (eventAdminRef != null) {
 			eventAdmin = (EventAdmin) context.getService(eventAdminRef);
 		} else {
-			System.err.println("PrintingSystem: no EventAdmin-Service found!");
+			logger.fatal("no EventAdmin-Service found!");
 		}
 
 		String[] topics = new String[] {

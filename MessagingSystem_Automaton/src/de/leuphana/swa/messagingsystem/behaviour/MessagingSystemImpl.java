@@ -29,13 +29,14 @@ public class MessagingSystemImpl implements MessagingCommandService, BundleActiv
 
 	@Override
 	public void start(BundleContext context) throws Exception {
-		System.out.println("Starting MessagagingSystem");
+		logger = LogManager.getLogger(this.getClass());
+		logger.info("Starting MessagagingSystem");
 
 		eventAdminRef = context.getServiceReference(EventAdmin.class.getName());
 		if (eventAdminRef != null) {
 			eventAdmin = (EventAdmin) context.getService(eventAdminRef);
 		} else {
-			System.err.println("PrintingSystem: no EventAdmin-Service found!");
+			logger.fatal("no EventAdmin-Service found!");
 		}
 
 		String[] topics = new String[] {
@@ -54,8 +55,6 @@ public class MessagingSystemImpl implements MessagingCommandService, BundleActiv
 
 	@Override
 	public DeliveryReport sendMessage(Sendable sendable) {
-		logger = LogManager.getLogger(this.getClass());
-
 		AbstractMessagingFactory abstractMessagingFactory = AbstractMessagingFactory.getFactory(sendable.getMessageType());
 
 		Message message = abstractMessagingFactory.createMessage(sendable.getReceiver(), sendable.getSender(), sendable.getContent());

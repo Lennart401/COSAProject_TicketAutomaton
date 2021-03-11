@@ -4,6 +4,8 @@ import de.leuphana.swa.messagingsystem.behaviour.service.DeliveryReport;
 import de.leuphana.swa.messagingsystem.behaviour.service.MessagingCommandService;
 import de.leuphana.swa.messagingsystem.behaviour.service.Sendable;
 import de.leuphana.swa.messagingsystem.structure.MessageType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
@@ -18,15 +20,18 @@ public class MessagingEventHandler implements EventHandler {
 
 	private MessagingCommandService service;
 	private EventAdmin eventAdmin;
+	private Logger logger;
 
 	public MessagingEventHandler(MessagingCommandService service, EventAdmin eventAdmin) {
 		this.service = service;
 		this.eventAdmin = eventAdmin;
+		this.logger = LogManager.getLogger(this.getClass());
 	}
 
 	@Override
 	public void handleEvent(Event event) {
-		System.out.println("MessagingSystem: " + event.getTopic());
+		logger.debug("Receiving event: " + event.getTopic());
+
 		if (event.getTopic().equals("de/leuphana/cosa/document/DOCUMENT_ADDED")) {
 			String title = (String) event.getProperty("title");
 			String content = (String) event.getProperty("content");
