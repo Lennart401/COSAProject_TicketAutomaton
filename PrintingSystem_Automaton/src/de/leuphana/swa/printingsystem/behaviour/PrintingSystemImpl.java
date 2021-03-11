@@ -102,7 +102,8 @@ public class PrintingSystemImpl implements PrintingCommandService, BundleActivat
 		props.put("price", report.getPrice());
 
 		Event event = new Event("de/leuphana/cosa/printing/PRINT_REPORT", props);
-		eventAdmin.sendEvent(event);
+		if (eventAdmin != null) // TODO was passiert, wenn EventAdmin nicht da ist?
+			eventAdmin.sendEvent(event);
 	}
 
 	@Override
