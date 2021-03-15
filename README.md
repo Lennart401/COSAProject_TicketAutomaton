@@ -2,7 +2,7 @@
 Exam task for the module "Component-oriented software architecture" at Leuphana University of Lüneburg.
 
 ## Task setting
-Implement a componentbus for the project "TicketAutomaton" using OSGi (Equinox/Felix/etc.). The components "DocumentSystem", "PrintingSystem", "MessagingSystem", "RouteSystem" and "PricingSystem" shall be connected using an event delegation mechanism. The TicketAutomaton must be accessable using a command line interface.
+Implement a componentbus for the project ```TicketAutomaton``` using OSGi (Equinox/Felix/etc.). The components ```DocumentSystem```, ```PrintingSystem```, ```MessagingSystem```, ```RouteSystem``` and ```PricingSystem``` shall be connected using an event delegation mechanism. The TicketAutomaton must be accessable using a command line interface.
 
 ## Components
 - [DocumentSystem](https://github.com/Lennart401/COSAProject/tree/main/DocumentSystem_Automaton)
@@ -34,3 +34,6 @@ If manually starting all bundles: as soon as the TicketAutomaton launches, both 
 To avoid manually starting all the bundles, it is easiest to assign start levels to each bundle. The library bundles (EventAdmin und LOG4J) should be given start level 1, all components except TicketAutomaton should get start level 2, TicketAutomaton and the Framework should start at level 3.
 
 Furthermore, not starting the OSGi console will prevent mixed inputs and commands as describes above and make the CLI work as intended.
+
+### Logging
+In the project task is stated, that a message for a successful ticket purchase should be put into a log file. This is realised using LOG4J in the module ```DocumentSystem``` [here](https://github.com/Lennart401/COSAProject_TicketAutomaton/blob/fcd5bcbf47138efcb69394e7addd3f6bf808ae9e/DocumentSystem_Automaton/src/de/leuphana/swa/documentsystem/behaviour/DocumentSystemImpl.java#L96). Since it is using an ```info```-log, LOG4J must the set up write all info-logs to a logfile.
